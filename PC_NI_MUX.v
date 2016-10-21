@@ -14,7 +14,7 @@ module PCNIMUX(	input[15:0]		jaddr,  // Jump address
 		output reg[31:0]	PCNI	// Next Instruction Program Counter	
 	  );
 
-	always @(*)
+	always @(*) //again non blocking statements are needed <=
 	begin
 		if (jmp == 1)
 			PCNI = bsel + jaddr;	
