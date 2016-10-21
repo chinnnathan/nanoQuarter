@@ -17,14 +17,15 @@ module ALUControl(	input[15:0]	inst,	// Instruction
 	parameter iType = 2'b01;
 	parameter jType = 2'b10;
 
-	always @(*)
+	always @(*) // all statements need to be non-blocking <= because of always @(*)
 	begin
 		func = inst[2:0];
 		if (inst[15:14] == rType || inst[15:14] == iType)
 			shamt = inst[4:3];
 		else
 			shamt = 2'b00;
-	
+	//end 
+	//begin
 		if (inst[15:14] == jType)
 			jr = 1'b1;	
 		else
