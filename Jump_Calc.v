@@ -17,12 +17,12 @@ module JumpCalc( input[15:0]		reg1data,	// Register 1 data
 	parameter JMP = 3'b000;
 	parameter JR  = 3'b001;
 
-	always @(*)
+	always @(*) // needs non blocking statements <=
 	begin
 		case (funct)
 			JMP: jaddr = jtarget;
 			JR : jaddr = reg1data;
-			default: jaddr = 0;
+			default: jaddr = 0; //set to don't care?
 		endcase
 	end
 endmodule
