@@ -30,7 +30,7 @@ module ALU(	input[1:0]		op,    		// Operation Code for decode
 	always @(*)
 	begin
 		case ({op,funct})
-			NAND:	ALUout = (reg1data ~& reg2data); //all of these statements need to be non-blocking <=
+			NAND:	ALUout = ~(reg1data & reg2data); 
 			XOR:	ALUout = (reg1data ^  reg2data);
 			SLL:	ALUout = (reg1data << reg2data);
 			SRL:	ALUout = (reg1data >> reg2data);
