@@ -16,7 +16,7 @@ module Registers(	input 			clk,	 // System Clock
 						rs2,	 // register source 2
 						rd,	 // register destination
 			input[15:0]		data_in, // data to be writen to rd
-			input			wp_,	 // Write Protect Bar (1 means write ok)
+			input			wp,	 // Write Protect Bar (1 means write ok)
 
 			output wire[15:0]	reg1data,
 						reg2data
@@ -30,7 +30,7 @@ module Registers(	input 			clk,	 // System Clock
 
 		always @ (posedge clk)
 		begin
-			if (wp_ == 1)
+			if (wp == 1)
 				registers[rd_last] = data_in;
 			rd_last = rd;
 		end
