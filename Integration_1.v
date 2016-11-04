@@ -8,13 +8,14 @@
 *
 *
 */
-`include"Prefetch_Buffer.v"
-`include"PC_MUX.v"
-`include"PC.v"
-`include"main_control.v"
-`include"Stall_Unit.v"
-`include"ALU_Control.v"
-`include"Stage_1.v"
+`include "Prefetch_Buffer.v"
+`include "PC_MUX.v"
+`include "PC.v"
+`include "main_control.v"
+`include "Stall_Unit.v"
+`include "ALU_Control.v"
+`include "Stage_1.v"
+`include "registers.v"
 module Integration1( 	input 			clk,
 						rst,
 			input wire 		[31:0] exInst,
@@ -36,7 +37,7 @@ module Integration1( 	input 			clk,
 			output reg [6:0] 	iVal,
 
 			// Below Here should be internal	
-			input wire		wp_
+			input wire		wp
 		
 		);
 
@@ -58,7 +59,7 @@ module Integration1( 	input 			clk,
 	wire [2:0] alu_funct; // alucontrol output function
 
 	PrefetchBuffer PrefetchBuffer(	.clk(clk),			.rst(rst),
-					.wp_(wp_),			.inst1(exInst[15:0]),
+					.wp(wp),			.inst1(exInst[15:0]),
 					.inst2(exInst[31:16]),     	.inst(inst)
 				);
 
@@ -90,4 +91,11 @@ module Integration1( 	input 			clk,
 	ALUControl ALUControl(		.inst(inst),			.func(alu_funct),
 					.shamt(shamt),			.jr(jr)
 				);
+	Registers Register(		.clk(clk),			.rst(rst),
+			   		.rs1(rs1),			.rs2(rs2),
+			   		.rd(rd),			.data_in(data_in),
+					.wp(wp),			.reg1data(reg1data),
+			   		.reg2data(reg2data)
+			  	);
+	
 endmodule
