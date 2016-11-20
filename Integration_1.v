@@ -62,7 +62,8 @@ module Integration1( 	input 			clk,
 
 	PrefetchBuffer PrefetchBuffer(	.clk(clk),			.rst(rst),
 					.write(write),			.inst1(exInst[15:0]),
-					.inst2(exInst[31:16]),     	.inst(inst)
+					.inst2(exInst[31:16]),     	.inst(inst),
+					.stall_flg(stall_flg)
 				);
 
 	// PCMUX
