@@ -1,39 +1,86 @@
-`include "APB_Arbiter.v"
-module APB_Arbiter_TB();
-	reg  Q;
-	reg  clk;
-	reg CEN;
-	reg  reset_N;
-	reg [15:0] paddr;
-	reg     pwrite;
-	reg     psel;
-	reg     penable;
-	reg     [15:0] pwdata;
-	reg     [2:0]  EMA;
-	reg     GWEN;
-	reg 	RETN;
-	wire    WRITE_FLAG;
-	wire    [15:0] prdata;
-	
-	APB_Arbiter APB_Arbiter(.Q(Q), .clk(clk), .CEN(CEN), .reset_N(reset_N), .paddr(paddr),
-							.pwrite(pwrite), .psel(psel), .penable(penable), .pwdata(pwdata),
-							.EMA(EMA), .GWEN(GWEN), .RETN(RETN), .WRITE_FLAG(WRITE_FLAG), .prdata(prdata));
+module APB_Arbiter
+#(
+  parameter ADDRWIDTH = 10,
+  parameter DATAWIDTH = 32
+)
+(
+  input                        Q,
+  input                        clk,
+  input 					   CEN,
+  input                        reset_N,
+  input        [ADDRWIDTH-1:0] paddr,
+  input                        pwrite,
+  input                        psel,
+  input                        penable,
+  input        [DATAWIDTH-1:0] pwdata,
+  input                  [2:0] EMA,
+  input                        GWEN,
+  input                        RETN,
+  output reg                   WRITE_FLAG,
+  output reg    [DATAWIDTH-1:0] prdata);
 
-	 initial begin
-		 clk = 1'b0;
-		 forever #10 clk = !clk;
-	end
-	
-	initial begin
-		reset_N = 1'b1;
-		@(negedge clk);
-		@(negedge clk);
-		reset_N = 1'b0;
-		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b0; paddr = 15'b0000000000000001; // Read from memory
-		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b1; paddr = 15'b0000000000000001; pwdata = 15'b1111111111111111; // Write to memory
-		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b0; paddr = 15'b0000000000000001; // Verify Write
-	end
+reg [15:0] memory; 
+reg [1:0] apb_st;
+reg [1:0] APB_SETUP = 0;
+reg [1:0] WRITE_ENABLE = 1;
+reg [1:0] READ_ENABLE = 2;
+
+hdsd1_1024x32cm8 hdsd1_1024x32cm8(.Q(Q), .CLK(clk), .CEN(CEN), .WEN(WRITE_ENABLE), .A(ADDRWIDTH), .D(DATAWIDTH), .EMA(EMA), .GWEN(GWEN), .RETN(RETN));
+
+// APB_SETUP -> ENABLE
+always @(negedge reset_N or posedge clk) begin
+  if (reset_N == 0) begin // Reset everything to 0
+    apb_st <= 0;
+	prdata <= 0;
+	WRITE_FLAG <= 0;
+  end
+
+  else begin
+    case (apb_st)
+      APB_SETUP : begin // Setup APB
+
+		 // clear the prdata (Data Read)
+        prdata <= 0;
+		WRITE_FLAG <= 0;
+		
+        // Enable Write or Read
+        if (psel && !penable) begin
+          if (pwrite) begin
+            apb_st <= WRITE_ENABLE; // Enable Write
+			WRITE_FLAG <= 1;
+          end
+
+          else begin
+            apb_st <= READ_ENABLE; // Enable Read 
+			WRITE_FLAG <= 0;
+          end
+        end
+      end
+
+      WRITE_ENABLE : begin
+        // Write pwdata to memory
+        if (psel && penable && pwrite) begin
+          memory[paddr] <= pwdata;
+        end
+
+        // return to APB_SETUP
+        apb_st <= APB_SETUP;
+      end
+
+      READ_ENABLE : begin
+        // read prdata from memory
+        if (psel && penable && !pwrite) begin
+          prdata <= memory[paddr];
+        end
+
+        // return to APB_SETUP
+        apb_st <= APB_SETUP;
+      end
+    endcase
+  end
+  
+  
+end 
+
+
 endmodule
