@@ -1,5 +1,5 @@
 /*
-* 	Nathan Chinn
+* 	Nathan Chinn, Bryan Lee
 * 	Minion CPU - NanoQuarter
 *
 *	Module:  Integration 1
@@ -95,6 +95,28 @@ module Integration1_TB();
 			check_Prefetch(exInst[15:0], message);
 			check_MainControl( 0, 0, 0, 0, 1, message);
 
+		// NAND r7, r2, r3, 01
+		// XOR  r5, r6, r7, 11
+		#10	write = 1; message = "Line __ Add 0,1 put r2";
+			write_reg = 0;
+			exInst = 32'b0010111011111000_0011101001101000;
+			check_Prefetch(16'b0000000001000000, message);
+			check_MainControl( 0, 0, 0, 0, 0, message);
+			check_RegisterData(0, 0, message);
+
+		#10	write = 0; message = "Line __ NAND 7,2 put r3 sh 01";
+			check_Prefetch(exInst[15:0], message);
+			check_RegisterData(0, 0, message);
+			write_reg = 1; mem_data = 16'hFFFF;
+
+		#10	write = 0; message = "Line __ XOR 5,6 put r7 sh 11";
+			check_Prefetch(16'b0010111011111000, message);
+			check_RegisterData(0, 0, message);
+			
+		//to simulate the stall detection from the instructions in line 87
+		//which were overwrittng the next instruction tests in line 102
+		//I copied the tests in 102 to be sure they re appeaered after stall was turned off
+		//Edited by Bryan Lee
 		// NAND r7, r2, r3, 01
 		// XOR  r5, r6, r7, 11
 		#10	write = 1; message = "Line __ Add 0,1 put r2";
