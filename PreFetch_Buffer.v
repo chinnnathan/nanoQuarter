@@ -1,5 +1,5 @@
 /*
-* 	Nathan Chinn
+* 	Nathan Chinn Edited by Bryan Lee
 * 	Minion CPU - NanoQuarter
 *
 *	Module:  Pre-Fetch Buffer
@@ -14,6 +14,7 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 			input[15:0]		inst1,	// Instruction 1
 			input[15:0]		inst2,	// Instruction 2
 			input			write,	// Write Protect Bar
+			input			stall_flg,
 
 			output reg[15:0]	inst	// function	
 	  );
@@ -22,7 +23,7 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 	
 	always @(posedge clk)
 	begin
-		if(write === 1)
+		if(write === 1 && !stall_flg)
 		begin 
 			inst		<= inst1;
 			inst_mem 	<= inst2;
