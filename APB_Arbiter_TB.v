@@ -30,10 +30,13 @@ module APB_Arbiter_TB();
 		@(negedge clk);
 		reset_N = 1'b0;
 		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b0; paddr = 15'b0000000000000001; // Read from memory
+		penable = 0; psel = 1; pwrite = 1; paddr = 15'b0000000000000001; pwdata = 15'b1111111111111111;// Write
 		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b1; paddr = 15'b0000000000000001; pwdata = 15'b1111111111111111; // Write to memory
+		penable = 0; psel = 1; pwrite = 1; paddr = 15'b0000000000000001; pwdata = 15'b1111111111111111;// Write
 		@(negedge clk);
-		penable = 1'b1; psel = 1'b1; pwrite = 1'b0; paddr = 15'b0000000000000001; // Verify Write
+		penable = 1; psel = 1'b1; pwrite = 1'b1; paddr = 15'b0000000000000001; pwdata = 15'b1111111111111111;// Write
+		@(negedge clk);
+		penable = 0; psel = 1'b1; pwrite = 1'b0; paddr = 15'b0000000000000001;  // Read
+		@(negedge clk);
 	end
 endmodule
