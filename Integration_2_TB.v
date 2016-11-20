@@ -87,7 +87,7 @@ module Integration2_TB();
 		#5 rst = 0;
 
 		op_in = 2'b00;	
-		#10
+		#10	check_mmuxout(
 
 
 
