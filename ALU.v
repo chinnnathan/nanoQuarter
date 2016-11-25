@@ -12,6 +12,7 @@
 
 module ALU(	input[1:0]		op,    		// Operation Code for decode
 		input[15:0]		memdata,	// Data from Memory
+		input[7:0]		idata,		// Immediate Data from Inst
 		input[2:0]		funct,		// Function Code
 		input[1:0]		shamt,		// Shift Amount
 		output reg[15:0]	ALUout,		// Data from ALU
@@ -26,18 +27,26 @@ module ALU(	input[1:0]		op,    		// Operation Code for decode
 	parameter	SRA 	= 5'b00_100;
 	parameter	ADD 	= 5'b00_101;
 	parameter	SUB 	= 5'b00_110;
+	parameter	LUI	= 5'b01_000;
+	parameter	LBI	= 5'b01_001;
+	parameter	SUI	= 5'b01_010;
+	parameter	SBI	= 5'b01_011;
 
 	always @(*)
 	begin
 		case ({op,funct})
-			NAND:	ALUout = ~(reg1data & reg2data);
-			XOR:	ALUout = (reg1data ^  reg2data);
-			SLL:	ALUout = (reg1data << reg2data); //shamt needs to be included in the equation
-			SRL:	ALUout = (reg1data >> reg2data); 
-			SRA:	ALUout = (reg1data >> reg2data); //needs to be changed
-			ADD:	ALUout = (reg1data +  reg2data);
-			SUB:	ALUout = (reg1data -  reg2data);
-			default:ALUout = 5'bxx_xxx; // don't care...not zero. This will save space
+			NAND:	ALUout = (~(reg1data & reg2data) << shamt);
+			XOR:	ALUout = ((reg1data ^  reg2data) << shamt);
+			SLL:	ALUout = ((reg1data << reg2data) << shamt); 
+			SRL:	ALUout = ((reg1data >> reg2data) << shamt); 
+			SRA:	ALUout = ((reg1data >>> reg2data) << shamt); 
+			ADD:	ALUout = ((reg1data +  reg2data) << shamt);
+			SUB:	ALUout = ((reg1data -  reg2data) << shamt);
+			LUI:	ALUout = ({idata, 8'b0000_0000});
+			LBI:	ALUout = ({8'b0000_0000, idata});
+			SUI:	ALUout = ({idata, 8'b0000_0000});
+			SBI:	ALUout = ({8'b0000_0000, idata});
+			default:ALUout = 16'bxxxx_xxxx_xxxx_xxxx; // don't care...not zero. This will save space
 		endcase
 
 	end
