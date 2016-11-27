@@ -296,6 +296,7 @@ module Integration2_TB();
 			jtarget_in	= 8'b1100_0000;
 			memdata 	= 16'b1010_1111_1010_0000;
 			reg1data_in 	= 16'b0111_1111_1111_1111;
+			reg2data_in 	= 16'b0111_0111_1111_1111;
 			PC_n_test	= PC_in + boffset_in;
 		#10	
 		$display("J-Type Testing Completed, Errors: %d", error_count);

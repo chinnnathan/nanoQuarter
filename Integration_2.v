@@ -32,8 +32,8 @@ module Integration2( 	input 			clk,
 			input[31:0]		PC_in,		// Program Counter from Pipeline
 
 
-			output[15:0]		mmuxout,	// data from either memory or ALU
-			output			regwrite,
+			output wire[15:0]	mmuxout,	// data from either memory or ALU
+			output wire		regwrite,
 			output[31:0]		PC_out,
 
 			input[15:0]		memdata		// for testing
@@ -47,7 +47,8 @@ module Integration2( 	input 			clk,
 	wire[15:0] ALUout;	// Data from the ALU
 	wire[31:0] PC_n;
 
-	assign regwrite = (op_in === 2'b00 || (op_in === 2'b01 && funct_in <= 3'b001))? 1'b1:1'b0;	// if R-type, then regwrite high
+	//assign regwrite = (op_in === 2'b00 || (op_in === 2'b01 && funct_in <= 3'b001))? 1'b1:1'b0;	// if R-type, then regwrite high
+	assign regwrite = (op_in == 2'b00 || ((op_in == 2'b01) && (funct_in <= 3'b001))) ? 1'b1:1'b0;
 
 	assign PC_n = PC_in + 32'h0002; // Next PC = 2 PC increments
 

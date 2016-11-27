@@ -21,7 +21,8 @@ module MainControl( 	input	   stall_flg,
 	parameter jType = 2'b10;
 	parameter bType = 2'b11;
 
-	parameter rdWrtJnct = 3'b010;
+	parameter rdWrtJnct = 3'b100;
+	parameter immediate = 3'b010;
 
 	always @ (*)
 	begin
@@ -34,15 +35,23 @@ module MainControl( 	input	   stall_flg,
 			rType:
 				jmp_flg = 0; // have to do something I guess...
 			iType:
-				if (funct >= rdWrtJnct) 
+				if (funct > immediate && funct <= rdWrtJnct) 
 				begin
-					memRd_flg = 0; 
-					memWrt_flg = 1;
+					memRd_flg = 1; 
+					memWrt_flg = 0;
 				end
 				else
 				begin	
-					memRd_flg = 1; 
-					memWrt_flg = 0;
+					if (funct >= rdWrtJnct) 
+					begin
+						memRd_flg = 1; 
+						memWrt_flg = 0;
+					end
+					else
+					begin
+						memRd_flg = 0;
+						memWrt_flg = 0;
+					end
 				end
 			jType:
 				jmp_flg = 1;

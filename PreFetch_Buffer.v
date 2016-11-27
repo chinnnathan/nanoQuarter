@@ -15,6 +15,8 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 			input[15:0]		inst2,	// Instruction 2
 			input			write,	// Write Protect Bar
 			input			stall_flg,
+			input[31:0]		PC_in,
+			output reg[31:0]	PC_out,
 
 			output reg[15:0]	inst	// function	
 	  );
@@ -23,8 +25,9 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 	
 	always @(posedge clk)
 	begin
-		if(write === 1 && !stall_flg)
+		if(write === 1) // && !stall_flg) 
 		begin 
+			PC_out		<= PC_in;
 			inst		<= inst1;
 			inst_mem 	<= inst2;
 		end
