@@ -1,17 +1,23 @@
 module APB_Arbiter
 #(
-  parameter ADDRWIDTH = 12,
-  parameter DATAWIDTH = 16
+  parameter ADDRWIDTH = 10,
+  parameter DATAWIDTH = 32
 )
 (
+  input                        Q,
   input                        clk,
+  input 					   CEN,
   input                        reset_N,
   input        [ADDRWIDTH-1:0] paddr,
   input                        pwrite,
   input                        psel,
   input                        penable,
   input        [DATAWIDTH-1:0] pwdata,
-  output reg      [DATAWIDTH-1:0] prdata);
+  input                  [2:0] EMA,
+  input                        GWEN,
+  input                        RETN,
+  output reg                   WRITE_FLAG,
+  output reg    [DATAWIDTH-1:0] prdata);
 
 reg [15:0] memory; 
 reg [1:0] apb_st;
@@ -19,7 +25,7 @@ reg [1:0] APB_SETUP = 0;
 reg [1:0] WRITE_ENABLE = 1;
 reg [1:0] READ_ENABLE = 2;
 
-sram_8kx16 sram_8kx16(.clk(clk), .addr(paddr), .we(WRITE_ENABLE), .wdata(pwdata), .rdata(prdata));
+hdsd1_1024x32cm8 hdsd1_1024x32cm8(.Q(Q), .CLK(clk), .CEN(CEN), .WEN(WRITE_ENABLE), .A(ADDRWIDTH), .D(DATAWIDTH), .EMA(EMA), .GWEN(GWEN), .RETN(RETN));
 
 // APB_SETUP -> ENABLE
 always @(negedge reset_N or posedge clk) begin
@@ -53,6 +59,7 @@ always @(negedge reset_N or posedge clk) begin
           memory[paddr] <= pwdata;
         end
 		
+		WRITE_FLAG <= 1;
         // return to APB_SETUP
         apb_st <= APB_SETUP;
       end
@@ -62,13 +69,16 @@ always @(negedge reset_N or posedge clk) begin
         if (psel && penable && !pwrite) begin
           prdata <= memory[paddr];
         end
-
+		
+		WRITE_FLAG <= 0;
         // return to APB_SETUP
         apb_st <= APB_SETUP;
       end
     endcase
   end
-   
+  
+  
 end 
+
 
 endmodule
