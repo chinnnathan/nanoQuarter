@@ -40,7 +40,7 @@ module ALU(	input[1:0]		op,    		// Operation Code for decode
 			SLL:	ALUout = ((reg1data << reg2data) << shamt); 
 			SRL:	ALUout = ((reg1data >> reg2data) << shamt); 
 			SRA:	ALUout = ((reg1data >>> reg2data) << shamt); 
-			ADD:	ALUout = ((reg1data +  reg2data) << shamt);
+			ADD:	ALUout = ((reg1data + reg2data) << shamt);
 			SUB:	ALUout = ((reg1data -  reg2data) << shamt);
 			LUI:	ALUout = ({idata, 8'b0000_0000});
 			LBI:	ALUout = ({8'b0000_0000, idata});

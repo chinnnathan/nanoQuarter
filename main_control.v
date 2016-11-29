@@ -21,6 +21,13 @@ module MainControl( 	input	   stall_flg,
 	parameter jType = 2'b10;
 	parameter bType = 2'b11;
 
+	parameter	lui = 3'b000;
+	parameter	lbi = 3'b001;
+	parameter	sui = 3'b010;
+	parameter	sbi = 3'b011;
+	parameter	lw  = 3'b100;
+	parameter	sw  = 3'b101;
+
 	parameter rdWrtJnct = 3'b100;
 	parameter immediate = 3'b010;
 
@@ -34,25 +41,56 @@ module MainControl( 	input	   stall_flg,
 		case(opcode)
 			rType:
 				jmp_flg = 0; // have to do something I guess...
-			iType:
-				if (funct > immediate && funct <= rdWrtJnct) 
-				begin
-					memRd_flg = 1; 
-					memWrt_flg = 0;
-				end
-				else
-				begin	
-					if (funct >= rdWrtJnct) 
-					begin
-						memRd_flg = 1; 
+			iType:  
+			begin 
+				case(funct)
+					lui: begin
+						memRd_flg  = 0;
 						memWrt_flg = 0;
 					end
-					else
-					begin
-						memRd_flg = 0;
+					lbi: begin
+						memRd_flg  = 0;
 						memWrt_flg = 0;
 					end
-				end
+					sui: begin
+						memRd_flg  = 0;
+						memWrt_flg = 1;
+					end
+					sbi: begin
+						memRd_flg  = 0;
+						memWrt_flg = 1;
+					end
+					lw : begin
+						memRd_flg  = 1;
+						memWrt_flg = 0;
+					end
+					sw : begin
+						memRd_flg  = 0;
+						memWrt_flg = 1;
+					end
+					
+					default:	;
+				endcase
+				//jmp_flg = 0;
+				//if (funct > immediate && funct <= rdWrtJnct) 
+				//begin
+				//	memRd_flg = 1; 
+				//	memWrt_flg = 0;
+				//end
+				//else
+				//begin	
+				//	if (funct >= rdWrtJnct) 
+				//	begin
+				//		memRd_flg = 1; 
+				//		memWrt_flg = 0;
+				//	end
+				//	else
+				//	begin
+				//		memRd_flg = 0;
+				//		memWrt_flg = 0;
+				//	end
+				//end
+			end
 			jType:
 				jmp_flg = 1;
 			bType:

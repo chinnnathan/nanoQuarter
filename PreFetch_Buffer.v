@@ -25,7 +25,7 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 	
 	always @(posedge clk)
 	begin
-		if(write === 1) // && !stall_flg) 
+		if(write === 1)// && !stall_flg) 
 		begin 
 			PC_out		<= PC_in;
 			inst		<= inst1;
