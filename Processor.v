@@ -81,7 +81,7 @@ module Processor(	input	clk,
 	Integration1	I1( 	
 			.clk(clk),
 			.rst(rst),
-			.exInst(exInst),
+			//.exInst(exInst),
 			.PCNI(PCNI),
 			.mmuxout(mmuxout),
 			.regwrite(regwrite),
@@ -103,7 +103,6 @@ module Processor(	input	clk,
 			.boff(boffset_1),
                                   
 			.mem_data(mem_data_1),	
-			.write(write),
 			.write_reg(write_reg_1)
 		);
 

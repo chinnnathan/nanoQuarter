@@ -50,7 +50,7 @@ module Integration2( 	input 			clk,
 	//assign regwrite = (op_in === 2'b00 || (op_in === 2'b01 && funct_in <= 3'b001))? 1'b1:1'b0;	// if R-type, then regwrite high
 	assign regwrite = (op_in == 2'b00 || ((op_in == 2'b01) && (funct_in <= 3'b001))) ? 1'b1:1'b0;
 
-	assign PC_n = PC_in + 32'h0002; // Next PC = 2 PC increments
+	assign PC_n = (rst===1'b1) ? 32'h0000 : (PC_in + 32'h0001); // Next PC = 2 PC increments
 
 	assign PC_out = (jmp === 1'b1)? (jaddr+PC_in):bsel; //Either PC or PC + jaddr
 

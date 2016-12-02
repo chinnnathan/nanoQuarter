@@ -15,10 +15,10 @@
 `include "Stall_Unit.v"
 `include "ALU_Control.v"
 `include "Registers.v"
+`include "APB.v"
 module Integration1( 	input 			clk,
 						rst,
-			input wire[31:0]	exInst,
-						PCNI,
+			input wire[31:0]	PCNI,
 			input wire[15:0]	mmuxout,
 			input wire		regwrite,
 
@@ -37,21 +37,24 @@ module Integration1( 	input 			clk,
 		     	output wire [15:0] 	reg1data,	
 						reg2data,
 		      	output wire [2:0] 	ALU_func,
+			input wire		write_reg,
 
 			// Below Here should be internal
-			input wire[15:0]	mem_data,	
-			input wire		write,
-			input wire		write_reg
+			input wire[15:0]	mem_data
 		
 		);
 
 	//prefetch module
 	wire [15:0] inst;				
-	//wire write;
+	wire [31:0] exInst;
+	wire enable;
+	wire read;
+	wire valid_im;
 
 	//pc and pc_mux module
 	wire [31:0] PC_mux_out;
 	wire [31:0] PC_out;
+	wire [31:0] PC_im;
 	wire stall_flg;
 
 	//main control module
@@ -62,12 +65,6 @@ module Integration1( 	input 			clk,
 	wire jr;
 	wire [2:0] alu_funct; // alucontrol output function
 
-	PrefetchBuffer PrefetchBuffer(	.clk(clk),			.rst(rst),
-					.write(write),			.inst1(exInst[15:0]),
-					.inst2(exInst[31:16]),     	.inst(inst),
-					.stall_flg(stall_flg),		.PC_in(PC),
-					.PC_out(PC_out)
-				);
 
 	// PCMUX
 	//  Stall flag High keeps PC at same Value
@@ -78,6 +75,8 @@ module Integration1( 	input 			clk,
 	assign func = inst[2:0];
 	assign boff = inst[7:3];
 	assign shamt = inst[4:3];
+
+	assign pwrite = 1'b0;
 
 	// PC
 	// On reset Set PC to 0
@@ -108,6 +107,21 @@ module Integration1( 	input 			clk,
 					.opcode(inst[15:14]),		.rs1(inst[13:11]),
 					.rs2(inst[10:8]),		.rd(inst[7:5]),
 					.pc_old(PC_out),		.stall_flg(stall_flg)
+				);
+
+	APB 	InstructionMemory(	.clk(clk),		.rst(rst),	
+					.paddr(PC_im),		.pwrite(pwrite),
+					.psel(read),		.penable(enable),
+					.pwdata(pwdata),	.prdata(exInst),
+					.valid(valid_im)
+				);
+
+	PrefetchBuffer PrefetchBuffer(	.clk(clk),			.rst(rst),
+					.write(valid_im),			.inst1(exInst[31:16]),
+					.inst2(exInst[15:0]),     	.inst(inst),
+					.stall_flg(stall_flg),		.PC_in(PC),
+					.enable(enable),		.read(read),
+					.PC_out(PC_im)
 				);
 
 	//ALUControl ALUControl(		.inst(inst),			.func(alu_funct),

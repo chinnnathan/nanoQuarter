@@ -40,10 +40,10 @@ module Integration1_TB();
 
 	Integration1 test(.clk(clk),
 			.rst(rst),
-			.exInst(exInst),
+			//.exInst(exInst),
 			.PCNI(PCNI),
-			.Mmuxout(Mmuxout),
-			.regWrite(regWrite),
+			.mmuxout(mmuxout),
+			.regwrite(regwrite),
 			.shamt(shamt),
 			.PC(PC),
 			.jmp(jmp),
