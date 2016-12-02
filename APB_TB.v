@@ -18,6 +18,7 @@ module APB_TB();
 	reg     	pwrite;
 	reg     	psel;
 	reg     	penable;
+	reg[127:0]	filename;
 	reg[31:0] 	pwdata;
 	wire		valid;
 	wire[31:0] 	prdata;
@@ -28,6 +29,7 @@ module APB_TB();
 			.paddr(paddr),		.pwrite(pwrite),
 			.psel(psel),		.penable(penable),
 			.pwdata(pwdata),	.prdata(prdata),
+			.filename(filename),
 			.valid(valid)
 		);
 
@@ -36,6 +38,7 @@ module APB_TB();
 		$dumpvars(0, APB_TB);
 
 		rst = 1'b1; clk = 1'b0;
+		filename = "data.bin";
 
 		@(negedge clk);
 			rst = 1'b0;

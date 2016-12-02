@@ -11,6 +11,7 @@
 `include "Integration_1.v"
 `include "Stage_1.v"
 `include "Integration_2.v"
+`include "APB.v"
 
 module Processor(	input	clk,
 				rst,
@@ -18,6 +19,9 @@ module Processor(	input	clk,
 			input[31:0]	exInst);
 
 
+	wire 		memenable; // Used to prepare APB Data Memory
+	wire 		memselect; // Used to Read or allow Write APB Memory
+	wire 		memwrite;  // Used to allow Write APB Memory
 
 	wire[31:0] 	exInst_1;
 
@@ -114,7 +118,7 @@ module Processor(	input	clk,
 			.reg2data_in(reg2data_1),	// Register 2 data	
 			.jtarget_in(idata_1),	// Target to jump to 
 			.idata_in(idata_1),	// immediate data from instruction
-			.memaddr_in( memaddr_1),	// Memory address
+			.memaddr_in( idata_1),	// Memory address
 			.boffset_in( boffset_1),	// Branch Offset
 			.funct_in(funct_1),	// function code
 			.shamt_in(shamt_1),
@@ -145,6 +149,10 @@ module Processor(	input	clk,
 	        	.PC_out(PC_2)
 	  );
 
+	assign memenable = ~(memread_1 | memwrite_1 );
+	assign memselect = (memread_2 | memwrite_1 | memwrite_2);
+	assign memwrite  = (memwrite_1 | memwrite_2);
+
 	Integration2	I2(
 			.clk(clk),
 			.rst(rst),
@@ -163,14 +171,15 @@ module Processor(	input	clk,
 			.jmp(jmp_2),
 			.memread(memread_2),	// Memory Read Flag
 			.memwrite(memwrite_2),	// Memory Write Flag
+			.memenable(memenable),
+			.memselect(memselect),
+			.datamemwrite(memwrite),
 			.PC_in(PC_2),		// Program Counter from Pipeline
 
 
 			.mmuxout(mmuxout),	// data from either memory or ALU
 			.regwrite(regwrite),
-			.PC_out(PCNI),
-
-			.memdata(memdata)		// for testing
+			.PC_out(PCNI)
 
 	  );
 endmodule

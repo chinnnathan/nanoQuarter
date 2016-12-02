@@ -12,6 +12,8 @@
 `include "branch_add.v"
 `include "PC_NI_MUX.v"
 `include "ALU.v"
+//`include "APB.v"
+
 module Integration2( 	input 			clk,
 			 			rst,
 
@@ -29,23 +31,29 @@ module Integration2( 	input 			clk,
 			input			jmp,
 			input			memread,	// Memory Read Flag
 			input			memwrite,	// Memory Write Flag
+			input			memenable,	// High befor Read/Write
+			input			memselect,	// High For Read/Write
+			input			datamemwrite,	// High For Read/Write
 			input[31:0]		PC_in,		// Program Counter from Pipeline
 
 
 			output wire[15:0]	mmuxout,	// data from either memory or ALU
 			output wire		regwrite,
-			output[31:0]		PC_out,
+			output[31:0]		PC_out
 
-			input[15:0]		memdata		// for testing
 
 	  );
 
 	wire[15:0] jaddr; 	// Address to Jump with 
 	wire[31:0] bsel;	// Address from the Branch Increase
 	wire[31:0] PCNI;	// Next Program Counter
-	wire[15:0] memedata;	// Data from memory address
+	wire[15:0] memdata;	// Data from memory address
 	wire[15:0] ALUout;	// Data from the ALU
 	wire[31:0] PC_n;
+
+	wire	enable;
+
+	localparam instruction_file = "memdata.bin";
 
 	//assign regwrite = (op_in === 2'b00 || (op_in === 2'b01 && funct_in <= 3'b001))? 1'b1:1'b0;	// if R-type, then regwrite high
 	assign regwrite = (op_in == 2'b00 || ((op_in == 2'b01) && (funct_in <= 3'b001))) ? 1'b1:1'b0;
@@ -55,6 +63,8 @@ module Integration2( 	input 			clk,
 	assign PC_out = (jmp === 1'b1)? (jaddr+PC_in):bsel; //Either PC or PC + jaddr
 
 	assign mmuxout = (memread === 1'b1) ? memdata:ALUout;
+
+	assign enable = (~memwrite & ~memread);
 
 	JumpCalc	JC(	.reg1data(reg1data_in),	.jtarget(jtarget_in),
 				.funct(funct_in),	.jaddr(jaddr)
@@ -74,6 +84,18 @@ module Integration2( 	input 			clk,
 				.idata(idata_in),
 				.ALUout(ALUout)
 			);
+
+	APB 	InstructionMemory(	.clk(clk),		
+					.rst(rst),	
+					.paddr(memaddr_in),	
+					.pwrite(datamemwrite),
+					.psel(memselect),		
+					.penable(memenable),
+					.pwdata(mmuxout),	
+					.prdata(memdata),
+					.filename(instruction_file),
+					.valid(valid_im)
+				);
 
 						
 endmodule

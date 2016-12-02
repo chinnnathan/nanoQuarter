@@ -15,7 +15,7 @@
 `include "Stall_Unit.v"
 `include "ALU_Control.v"
 `include "Registers.v"
-`include "APB.v"
+//`include "APB.v"
 module Integration1( 	input 			clk,
 						rst,
 			input wire[31:0]	PCNI,
@@ -50,6 +50,7 @@ module Integration1( 	input 			clk,
 	wire enable;
 	wire read;
 	wire valid_im;
+	localparam instruction_file = "instdata.bin";
 
 	//pc and pc_mux module
 	wire [31:0] PC_mux_out;
@@ -113,11 +114,12 @@ module Integration1( 	input 			clk,
 					.paddr(PC_im),		.pwrite(pwrite),
 					.psel(read),		.penable(enable),
 					.pwdata(pwdata),	.prdata(exInst),
+					.filename(instruction_file),
 					.valid(valid_im)
 				);
 
 	PrefetchBuffer PrefetchBuffer(	.clk(clk),			.rst(rst),
-					.write(valid_im),			.inst1(exInst[31:16]),
+					.write(valid_im),		.inst1(exInst[31:16]),
 					.inst2(exInst[15:0]),     	.inst(inst),
 					.stall_flg(stall_flg),		.PC_in(PC),
 					.enable(enable),		.read(read),

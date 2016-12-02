@@ -15,6 +15,7 @@ module APB (
 		  input         psel,
 		  input         penable,
 		  input[31:0] 	pwdata,
+		  input[127:0]  filename,
 
 		  output reg		valid,
 		  output reg[31:0] 	prdata
@@ -30,7 +31,7 @@ localparam R_ENABLE 	= 2'b10;
 
 // Load Data From File
 initial begin
-	$readmemb("data.bin", mem);
+	$readmemb(filename, mem);
 end
 
 // SETUP -> ENABLE
@@ -64,6 +65,7 @@ always @(posedge rst or posedge clk) begin
         // write pwdata to memory
         if (psel && penable && pwrite) begin
           mem[paddr] <= pwdata;
+	  $writememb(filename, mem);
         end
 
         // return to SETUP
