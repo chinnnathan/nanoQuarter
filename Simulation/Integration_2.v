@@ -74,9 +74,6 @@ module Integration2( 	input 			clk,
 				.bne(bne_in),		.bsel(bsel)
 			  );
 
-	//PCNIMUX		PM(	.jaddr(jaddr),		.bsel(bsel),
-	//			.jmp(jmp),		.PCNI(PCNI)
-	//		  );
 
 	ALU		A(	.op(op_in),		.memdata(memdata),
 				.funct(funct_in),	.shamt(shamt_in),
@@ -85,16 +82,16 @@ module Integration2( 	input 			clk,
 				.ALUout(ALUout)
 			);
 
-	APB 	InstructionMemory(	.clk(clk),		
-					.rst(rst),	
-					.paddr(memaddr_in),	
-					.pwrite(datamemwrite),
-					.psel(memselect),		
-					.penable(memenable),
-					.pwdata(mmuxout),	
-					.prdata(memdata),
-					.filename(instruction_file),
-					.valid(valid_im)
+	APB 	DataMemory(	.clk(clk),		
+				.rst(rst),	
+				.paddr(memaddr_in),	
+				.pwrite(datamemwrite),
+				.psel(memselect),		
+				.penable(memenable),
+				.pwdata(mmuxout),	
+				.prdata(memdata),
+				.filename(instruction_file),
+				.valid(valid_im)
 				);
 
 						

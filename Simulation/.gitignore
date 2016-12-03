@@ -1,0 +1,7 @@
+*.un~
+*.swp
+*.vcd
+Main_Control_TB
+Stage_1_TB
+*.vvp
+*.vpp
