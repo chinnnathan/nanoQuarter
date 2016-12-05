@@ -51,6 +51,7 @@ module Integration1( 	input 			clk,
 	wire read;
 	wire valid_im;
 	localparam instruction_file = "instdata.bin";
+	wire [31:0] pwdata;
 
 	//pc and pc_mux module
 	wire [31:0] PC_mux_out;
@@ -62,6 +63,11 @@ module Integration1( 	input 			clk,
 	wire jmp_flg, brnch_flg, nop_flg, 
 		  memRd_flg, memWrt_flg;
 
+	// Registerr Module
+	wire[2:0] rs1;
+	wire[2:0] rs2;
+	wire[2:0] rd;
+
 	//ALUcontrol
 	wire jr;
 	wire [2:0] alu_funct; // alucontrol output function
@@ -71,11 +77,15 @@ module Integration1( 	input 			clk,
 	//  Stall flag High keeps PC at same Value
 	assign PC_mux_out = stall_flg ? PC : PCNI;
 
-	assign idata = inst[10:2];
+	assign idata = inst[10:3];
 	assign op = inst[15:14];
 	assign func = inst[2:0];
 	assign boff = inst[7:3];
 	assign shamt = inst[4:3];
+
+	assign rd = (inst[15:14] == 2'b01) ? inst[13:11] : inst[7:5]; // Rd = rs1 if I-type
+	assign rs1 = inst[13:11];
+	assign rs2 = inst[10:8];
 
 	assign pwrite = 1'b0;
 
@@ -91,7 +101,7 @@ module Integration1( 	input 			clk,
 					.write_reg(regwrite),
 					.rs1(inst[13:11]),
 					.rs2(inst[10:8]),
-					.rd(inst[7:5]),
+					.rd(rd),
 					.data_in(mmuxout),
 					.reg1data(reg1data),
 					.reg2data(reg2data)
@@ -105,8 +115,8 @@ module Integration1( 	input 			clk,
 				);
 
 	StallUnit StallUnit(		.clk(clk),			.rst(rst),
-					.opcode(inst[15:14]),		.rs1(inst[13:11]),
-					.rs2(inst[10:8]),		.rd(inst[7:5]),
+					.opcode(inst[15:14]),		.rs1(rs1),
+					.rs2(rs2),			.rd(rd),
 					.pc_old(PC_out),		.stall_flg(stall_flg)
 				);
 
@@ -126,7 +136,4 @@ module Integration1( 	input 			clk,
 					.PC_out(PC_im)
 				);
 
-	//ALUControl ALUControl(		.inst(inst),			.func(alu_funct),
-	//				.shamt(shamt),			.jr(jr)
-	//			);
 endmodule

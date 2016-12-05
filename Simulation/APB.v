@@ -48,6 +48,7 @@ always @(posedge rst or posedge clk) begin
         // clear the prdata
         prdata <= 32'hFFFF_FFFF;
 	valid <= 0;
+  	$writememb(filename, mem);
 
         // Move to ENABLE when the psel is asserted
         if (psel && !penable) begin
@@ -65,7 +66,6 @@ always @(posedge rst or posedge clk) begin
         // write pwdata to memory
         if (psel && penable && pwrite) begin
           mem[paddr] <= pwdata;
-	  $writememb(filename, mem);
         end
 
         // return to SETUP

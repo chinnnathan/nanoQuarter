@@ -14,9 +14,8 @@
 `include "APB.v"
 
 module Processor(	input	clk,
-				rst,
-				write,
-			input[31:0]	exInst);
+				rst
+		);
 
 
 	wire 		memenable; // Used to prepare APB Data Memory
@@ -100,8 +99,8 @@ module Processor(	input	clk,
 			.memRead(memread_1),
 			.memWrite(memwrite_1),
 			.valid(valid_1),
-		     	.reg1data(reg1data_1),	
-			.reg2data(reg2data_1),
+		     	.reg1data(reg1data_1),	// Removing From Pipeline. Bad
+			.reg2data(reg2data_1), // Removing From Pipeline. Bad
 		      	.ALU_func(ALU_func_1),
 			.func(funct_1),
 			.boff(boffset_1),
@@ -157,8 +156,10 @@ module Processor(	input	clk,
 			.clk(clk),
 			.rst(rst),
 
-			.reg1data_in(reg1data_2),	// Register 1 data	
-			.reg2data_in(reg2data_2),	// Register 2 data	
+			//.reg1data_in(reg1data_2),	// Register 1 data	
+			//.reg2data_in(reg2data_2),	// Register 2 data	
+			.reg1data_in(reg1data_1),	// Register 1 data	
+			.reg2data_in(reg2data_1),	// Register 2 data	
 			.jtarget_in(jtarget_2),	// Target to jump to 
 			.idata_in(idata_2),	// immediate data from instruction
 			.memaddr_in(memaddr_2),	// Memory address

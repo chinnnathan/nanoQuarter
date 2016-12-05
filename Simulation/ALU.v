@@ -31,6 +31,8 @@ module ALU(	input[1:0]		op,    		// Operation Code for decode
 	parameter	LBI	= 5'b01_001;
 	parameter	SUI	= 5'b01_010;
 	parameter	SBI	= 5'b01_011;
+	parameter	LW	= 5'b01_100;
+	parameter	SW	= 5'b01_101;
 
 	always @(*)
 	begin
@@ -46,6 +48,8 @@ module ALU(	input[1:0]		op,    		// Operation Code for decode
 			LBI:	ALUout = ({8'b0000_0000, idata});
 			SUI:	ALUout = ({idata, 8'b0000_0000});
 			SBI:	ALUout = ({8'b0000_0000, idata});
+			LW:	ALUout = 16'b1111_1111_1111_1111;
+			SW:	ALUout = reg1data;
 			default:ALUout = 16'bxxxx_xxxx_xxxx_xxxx; // don't care...not zero. This will save space
 		endcase
 
