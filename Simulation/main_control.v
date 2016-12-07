@@ -8,12 +8,15 @@
 *
 */
 
-module MainControl( 	input	   stall_flg,
-			input[1:0] opcode,
-			input[2:0] funct,
-			output reg jmp_flg,	brnch_flg,
-				   nop_flg,	memRd_flg,
-			   	   memWrt_flg
+module MainControl( 	input	   	stall_flg,
+			input[1:0] 	opcode,
+			input[2:0] 	funct,
+			output reg 	jmp_flg,
+					brnch_flg,
+				   	nop_flg,	
+					memRd_flg,
+					reg_write_flg,
+			   	   	memWrt_flg
 		   );
 
 	parameter rType = 2'b00;
@@ -33,69 +36,71 @@ module MainControl( 	input	   stall_flg,
 
 	always @ (*)
 	begin
-		jmp_flg   = 0;	brnch_flg  = 0;	
-		memRd_flg = 0;	memWrt_flg = 0;
-		
-		nop_flg = stall_flg;
+		if (stall_flg == 1)
+		begin
+			jmp_flg   = 0;	
+			brnch_flg  = 0;	
+			memRd_flg = 0;
+			memWrt_flg = 0;
+			reg_write_flg = 0;
+			
+			nop_flg = stall_flg;
+		end
+		else
+		begin
 
-		case(opcode)
-			rType:
-				jmp_flg = 0; // have to do something I guess...
-			iType:  
-			begin 
-				case(funct)
-					lui: begin
-						memRd_flg  = 0;
-						memWrt_flg = 0;
-					end
-					lbi: begin
-						memRd_flg  = 0;
-						memWrt_flg = 0;
-					end
-					sui: begin
-						memRd_flg  = 0;
-						memWrt_flg = 1;
-					end
-					sbi: begin
-						memRd_flg  = 0;
-						memWrt_flg = 1;
-					end
-					lw : begin
-						memRd_flg  = 1;
-						memWrt_flg = 0;
-					end
-					sw : begin
-						memRd_flg  = 0;
-						memWrt_flg = 1;
-					end
-					
-					default:	;
-				endcase
-				//jmp_flg = 0;
-				//if (funct > immediate && funct <= rdWrtJnct) 
-				//begin
-				//	memRd_flg = 1; 
-				//	memWrt_flg = 0;
-				//end
-				//else
-				//begin	
-				//	if (funct >= rdWrtJnct) 
-				//	begin
-				//		memRd_flg = 1; 
-				//		memWrt_flg = 0;
-				//	end
-				//	else
-				//	begin
-				//		memRd_flg = 0;
-				//		memWrt_flg = 0;
-				//	end
-				//end
-			end
-			jType:
-				jmp_flg = 1;
-			bType:
-				brnch_flg = 1;
-		endcase
+			jmp_flg   = 0;	
+			brnch_flg  = 0;	
+			memRd_flg = 0;
+			memWrt_flg = 0;
+			reg_write_flg = 0;
+
+			case(opcode)
+				rType:
+					reg_write_flg = 1;
+				iType:  
+				begin 
+					case(funct)
+						lui: begin
+							memRd_flg  = 0;
+							memWrt_flg = 0;
+							reg_write_flg = 1;
+						end
+						lbi: begin
+							memRd_flg  = 0;
+							memWrt_flg = 0;
+							reg_write_flg = 1;
+						end
+						sui: begin
+							memRd_flg  = 0;
+							memWrt_flg = 1;
+							reg_write_flg = 0;
+						end
+						sbi: begin
+							memRd_flg  = 0;
+							memWrt_flg = 1;
+							reg_write_flg = 0;
+						end
+						lw : begin
+							memRd_flg  = 1;
+							memWrt_flg = 0;
+							reg_write_flg = 1;
+						end
+						sw : begin
+							memRd_flg  = 0;
+							memWrt_flg = 1;
+							reg_write_flg = 0;
+						end
+						
+						default:	;
+					endcase
+				end
+				jType:
+					jmp_flg = 1;
+				bType:
+					brnch_flg = 1;
+			endcase
+		end
 	end
 
 endmodule // MainControll

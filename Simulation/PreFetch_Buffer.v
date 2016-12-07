@@ -25,21 +25,39 @@ module PrefetchBuffer(	input 			clk, 	// System Clock
 
 	reg[15:0]	inst_mem;
 	
-	always @(posedge clk)
+	always @(posedge clk or posedge rst)
 	begin
-		enable <= ~enable;
-		if(write === 1)// && !stall_flg) 
-		begin 
-			PC_out		<= PC_in;
-			inst		<= inst1;
-			inst_mem 	<= inst2;
+		if( rst == 1)
+		begin
+			enable <= 1;
+			read   <= 1;
 		end
 		else
-			inst	<= inst_mem;
-	end
-	always @(posedge rst)
-	begin
-		enable <= 1;
-		read   <= 1;
+		begin
+			enable <= ~enable;
+			if(write === 1)
+			begin 
+
+				if (stall_flg == 1)
+					begin
+						inst_mem <= inst;
+					end
+					else
+					begin
+						inst 		<= inst1;
+						PC_out		<= PC_in;
+						inst_mem	<= inst2;
+					end
+			end
+			else
+				if (stall_flg == 1)
+				begin
+					;
+				end
+				else
+				begin
+					inst	<= inst_mem;
+				end
+		end
 	end
 endmodule

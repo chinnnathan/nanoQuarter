@@ -22,7 +22,9 @@ module Stage1( input 			clk,
 		input[1:0]		op_in,		// operation code
 		input[1:0]		shamt_in,	// Shift amount code
 		input			jr_in,		// jump register?  - as of 9/8/16 I have forgot what this is supposed to do...
+		input			regwrite_in,
 		input			jmp_in,
+		input			stall_flg_in,
 		input			bne_in,
 		input			memread_in,
 		input			memwrite_in,
@@ -39,35 +41,42 @@ module Stage1( input 			clk,
 		output reg[1:0]		op_out,		// operation code
 		output reg[1:0]		shamt_out,	// Shift Amount code
 		output reg		jr_out,		// jump register?  - as of 9/8/16 I have forgot what this is supposed to do...
+		output reg		regwrite_out,
 		output reg		jmp_out,
+		output reg		stall_flg_out,
 		output reg		bne_out,
 		output reg		memread_out,
 		output reg		memwrite_out,
 	        output reg[31:0]	PC_out
 	  );
 
-	always @(posedge clk) 
+	always @(posedge clk or posedge rst) 
 	begin
-		reg1data_out 	<= reg1data_in;
-		reg2data_out 	<= reg2data_in;
-		jtarget_out  	<= jtarget_in;
-		memaddr_out  	<= memaddr_in;
-		boffset_out  	<= boffset_in;
-		funct_out    	<= funct_in;
-		op_out    	<= op_in;
-		ALUfunct_out 	<= ALUfunct_in;
-		shamt_out    	<= shamt_in;
-		jr_out 	     	<= jr_in;
-		jmp_out		<= jmp_in;
-		bne_out		<= bne_in;
-		memread_out	<= memread_in;
-		memwrite_out	<= memwrite_in;
-		PC_out	     	<= PC_in;
-		idata_out	<= idata_in;
+		if(rst == 1)
+		begin
+			PC_out <= 0;
+		end
+		else
+		begin
+			reg1data_out 	<= reg1data_in;
+			reg2data_out 	<= reg2data_in;
+			jtarget_out  	<= jtarget_in;
+			memaddr_out  	<= memaddr_in;
+			boffset_out  	<= boffset_in;
+			funct_out    	<= funct_in;
+			op_out    	<= op_in;
+			ALUfunct_out 	<= ALUfunct_in;
+			shamt_out    	<= shamt_in;
+			jr_out 	     	<= jr_in;
+			jmp_out		<= jmp_in;
+			stall_flg_out	<= stall_flg_in;
+			regwrite_out	<= regwrite_in;
+			bne_out		<= bne_in;
+			memread_out	<= memread_in;
+			memwrite_out	<= memwrite_in;
+			PC_out	     	<= PC_in;
+			idata_out	<= idata_in;
+		end
 	end
 
-	always @(posedge rst)
-	begin
-		PC_out		<= 0;
-	end
 endmodule

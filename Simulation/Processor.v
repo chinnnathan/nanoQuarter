@@ -48,7 +48,7 @@ module Processor(	input	clk,
 
 	// Below Here should be internal
 	wire[15:0]	mem_data_1;	
-	wire		write_reg_1;
+	wire		regwrite_1;
 
 
 	wire[31:0] 	exInst_2;
@@ -61,7 +61,7 @@ module Processor(	input	clk,
 	wire[2:0]	ALUfunct_2;
 	wire[1:0]	op_2;
 	wire		Mmuxout_2;
-	wire		regwrite;
+	wire		regwrite_2;
 	wire[1:0] 	shamt_2;
 	wire[31:0]	PC_2;	
 	wire		jmp_2;
@@ -87,7 +87,7 @@ module Processor(	input	clk,
 			//.exInst(exInst),
 			.PCNI(PCNI),
 			.mmuxout(mmuxout),
-			.regwrite(regwrite),
+			.regwrite(regwrite_2),
                                   
 			.shamt(shamt_1),
 			.op(op_1),
@@ -99,6 +99,7 @@ module Processor(	input	clk,
 			.memRead(memread_1),
 			.memWrite(memwrite_1),
 			.valid(valid_1),
+			.stall_flg(stall_flg_1),
 		     	.reg1data(reg1data_1),	// Removing From Pipeline. Bad
 			.reg2data(reg2data_1), // Removing From Pipeline. Bad
 		      	.ALU_func(ALU_func_1),
@@ -106,7 +107,7 @@ module Processor(	input	clk,
 			.boff(boffset_1),
                                   
 			.mem_data(mem_data_1),	
-			.write_reg(write_reg_1)
+			.regwrite_out(regwrite_1)
 		);
 
 		Stage1 	S1( 
@@ -123,6 +124,8 @@ module Processor(	input	clk,
 			.shamt_in(shamt_1),
 			.op_in(op_1),	
 			.jmp_in(jmp_1),	
+			.stall_flg_in(stall_flg_1),	
+			.regwrite_in(regwrite_1),	
 			.bne_in(bne_1),	
 			.memread_in(memread_1),	
 			.memwrite_in(memwrite_1),	
@@ -140,6 +143,8 @@ module Processor(	input	clk,
 			.shamt_out(shamt_2),
 			.op_out(op_2),	
 			.jmp_out(jmp_2),	
+			.stall_flg_out(stall_flg_2),	
+			.regwrite_out(regwrite_2),	
 			.bne_out(bne_2),	
 			.memread_out(memread_2),	
 			.memwrite_out(memwrite_2),	
@@ -170,6 +175,7 @@ module Processor(	input	clk,
 			.bne_in(bne_2),		// Branch Flag 
 			.jr_in(jr_2),		// jump register?  - as of 9/8/16 I have forgot what this is supposed to do...
 			.jmp(jmp_2),
+			.stall_flg(stall_flg_2),
 			.memread(memread_2),	// Memory Read Flag
 			.memwrite(memwrite_2),	// Memory Write Flag
 			.memenable(memenable),
@@ -179,7 +185,7 @@ module Processor(	input	clk,
 
 
 			.mmuxout(mmuxout),	// data from either memory or ALU
-			.regwrite(regwrite),
+			//.regwrite(regwrite),
 			.PC_out(PCNI)
 
 	  );

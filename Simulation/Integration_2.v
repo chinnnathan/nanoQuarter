@@ -29,6 +29,7 @@ module Integration2( 	input 			clk,
 			input			bne_in,		// Branch Flag 
 			input			jr_in,		// jump register?  - as of 9/8/16 I have forgot what this is supposed to do...
 			input			jmp,
+			input			stall_flg,
 			input			memread,	// Memory Read Flag
 			input			memwrite,	// Memory Write Flag
 			input			memenable,	// High befor Read/Write
@@ -38,7 +39,7 @@ module Integration2( 	input 			clk,
 
 
 			output wire[15:0]	mmuxout,	// data from either memory or ALU
-			output wire		regwrite,
+			//output wire		regwrite,
 			output[31:0]		PC_out
 
 
@@ -50,17 +51,19 @@ module Integration2( 	input 			clk,
 	wire[15:0] memdata;	// Data from memory address
 	wire[15:0] ALUout;	// Data from the ALU
 	wire[31:0] PC_n;
+	wire[31:0] PC_mux;
 
 	wire	enable;
 
 	localparam instruction_file = "memdata.bin";
 
-	//assign regwrite = (op_in === 2'b00 || (op_in === 2'b01 && funct_in <= 3'b001))? 1'b1:1'b0;	// if R-type, then regwrite high
-	assign regwrite = (op_in == 2'b00 || ((op_in == 2'b01) && (funct_in <= 3'b001))) ? 1'b1:1'b0;
+	//assign regwrite = (op_in == 2'b00 || ((op_in == 2'b01) && (funct_in <= 3'b001))) ? 1'b1:1'b0;
 
 	assign PC_n = (rst===1'b1) ? 32'h0000 : (PC_in + 32'h0001); // Next PC = 2 PC increments
 
-	assign PC_out = (jmp === 1'b1)? (jaddr+PC_in):bsel; //Either PC or PC + jaddr
+	assign PC_mux = (jmp === 1'b1)? (jaddr):bsel; // Either PC or PC + jaddr
+
+	assign PC_out = (stall_flg === 1'b1) ? PC_in:PC_mux;
 
 	assign mmuxout = (memread === 1'b1) ? memdata:ALUout;
 

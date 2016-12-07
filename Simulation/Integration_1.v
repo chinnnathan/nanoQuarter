@@ -34,10 +34,11 @@ module Integration1( 	input 			clk,
 						memRead,
 				       		memWrite,
 						valid,
+						stall_flg,
 		     	output wire [15:0] 	reg1data,	
 						reg2data,
 		      	output wire [2:0] 	ALU_func,
-			input wire		write_reg,
+			output wire		regwrite_out,
 
 			// Below Here should be internal
 			input wire[15:0]	mem_data
@@ -57,7 +58,7 @@ module Integration1( 	input 			clk,
 	wire [31:0] PC_mux_out;
 	wire [31:0] PC_out;
 	wire [31:0] PC_im;
-	wire stall_flg;
+	//wire stall_flg;
 
 	//main control module
 	wire jmp_flg, brnch_flg, nop_flg, 
@@ -75,7 +76,8 @@ module Integration1( 	input 			clk,
 
 	// PCMUX
 	//  Stall flag High keeps PC at same Value
-	assign PC_mux_out = stall_flg ? PC : PCNI;
+	//assign PC_mux_out = stall_flg ? PC : PCNI;
+	assign PC_mux_out = stall_flg ? PC:PCNI;
 
 	assign idata = inst[10:3];
 	assign op = inst[15:14];
@@ -111,7 +113,8 @@ module Integration1( 	input 			clk,
 	MainControl MainControl(	.stall_flg(stall_flg),		.opcode(inst[15:14]),
 					.funct(inst[2:0]),		.jmp_flg(jmp),
 					.brnch_flg(bne),		.nop_flg(nop_flg),
-					.memRd_flg(memRead),		.memWrt_flg(memWrite)
+					.memRd_flg(memRead),		.memWrt_flg(memWrite),
+					.reg_write_flg(regwrite_out)
 				);
 
 	StallUnit StallUnit(		.clk(clk),			.rst(rst),
